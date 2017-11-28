@@ -128,7 +128,7 @@ void Swizzle(Class class, SEL originalSelector, Method swizzledMethod)
 
 先看下 UML 类图：
 
-![](/blog/assets/images/2017-10-25-zu-jian-sheng-ming-zhou-qi/1509178037666.jpg)
+![](/assets/images/2017-10-25-zu-jian-sheng-ming-zhou-qi/1509178037666.jpg)
 
 首先是 TDFModule ，模块基类，所有想要捕获 App 生命周期事件的模块都需要创建一个继承 TDFModule 的类，并且遵守 TDFModuleProtocol 协议：
 
@@ -427,7 +427,7 @@ static void MCDSwizzleInstanceMethod(Class cls, SEL originalSelector, Class targ
 
 总结起来，流程如下：
 
-![](/blog/assets/images/2017-10-25-zu-jian-sheng-ming-zhou-qi/1509083789825.jpg)
+![](/assets/images/2017-10-25-zu-jian-sheng-ming-zhou-qi/1509083789825.jpg)
 
 经过上面几步，就可以把 App 的事件分发给各个组件了，而且组件对事件的捕获是不依赖于外界（AppDelegate）实现的，只要进行注册就可以了，个人认为还是比较优雅的。
 
