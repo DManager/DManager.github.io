@@ -4,7 +4,7 @@ title: "二维火掌柜Android模块化架构实践"
 date: 2017-12-30 18:18:59 +0800
 comments: true
 categories: android
-author: 石胆
+author: [石胆, 牛轧糖]
 ---
 
 
