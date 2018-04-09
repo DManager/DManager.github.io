@@ -21,7 +21,7 @@ __前言：__
 
 __持续集成是敏捷开发流程背景下极限编程的方法论中的核心实践之一。__
 
-![持续集成起源](https://upload-images.jianshu.io/upload_images/3828003-41dd2c7366567e72.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![持续集成起源](/assets/images/2018-04-09-android-ci/ci-1.png)
 
 ### 1.2 定义
 
@@ -37,7 +37,7 @@ __简而言之，持续集成就是一种开发流程的具体实践，团队成
 
 ## 2、为什么要做持续集成
 
-![持续集成收益与意义](https://upload-images.jianshu.io/upload_images/3828003-9fde0429102d258b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![持续集成收益与意义](/assets/images/2018-04-09-android-ci/ci-2.png)
 
 ### 2.1 开发团队收益
 
@@ -106,13 +106,13 @@ __简而言之，持续集成就是一种开发流程的具体实践，团队成
 
 * __进行一些构建后操作__（例如发送邮件通知导致测试不通过的代码提交者，通过钉钉通知发送构建结果等）
 
-![持续集成流程](https://upload-images.jianshu.io/upload_images/3828003-553020db517710dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![持续集成流程](/assets/images/2018-04-09-android-ci/ci-3.png)
 
 ### 3.3 持续集成过程
 
 #### 3.3.1 总过程
  
-![持续集成过程](https://upload-images.jianshu.io/upload_images/3828003-551112abf3447246.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![持续集成过程](/assets/images/2018-04-09-android-ci/ci-4.png)
 
 * 由构建到归档是持续集成主线。
 
@@ -153,13 +153,13 @@ __针对我组情况，对lint静态代码扫描和单元测试的持续集成�
 
 > 在下图可以看到归档文件和lint扫描趋势图、单元测试趋势图，相应的趋势图点击进去还可以看具体的详细信息。
 
-![Jenkins持续集成概览](https://upload-images.jianshu.io/upload_images/3828003-8f3d439c7d4ac4e1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Jenkins持续集成概览](/assets/images/2018-04-09-android-ci/ci-5.png)
 
-![Lint原始报告](https://upload-images.jianshu.io/upload_images/3828003-c2db0c871cf9c22e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Lint原始报告](/assets/images/2018-04-09-android-ci/ci-6.png)
 
-![Lint分析报告](https://upload-images.jianshu.io/upload_images/3828003-e8e0447ea9937da7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![Lint分析报告](/assets/images/2018-04-09-android-ci/ci-7.png)
 
-![单元测试报告](https://upload-images.jianshu.io/upload_images/3828003-a65b90cabe0b0af3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![单元测试报告](/assets/images/2018-04-09-android-ci/ci-8.png)
 
 * __关于lint检查出的issue问题的解决落地__
 
