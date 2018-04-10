@@ -103,6 +103,8 @@ public class RestApplication extends Application {
     @Override
     public void onTerminate() {
         super.onTerminate();
+        // NOTE: onTerminate函数并不保证app关闭时一定会被调用
+        // 此处逻辑可以移到app关闭逻辑中（通常是首页监听back的地方）
         mModuleManager.onDestory();
     }
 }
@@ -296,6 +298,12 @@ public class SettingModule implements ModuleInterface {
 
 
 一个模块对外提供一个Facade接口，通过反射获取此接口的实例，模块对外提供的接口统一成一个。
+
+
+
+5. 依赖注入
+
+​      通过ARouter的@Autowired实现对外提供服务。
 
 
 
