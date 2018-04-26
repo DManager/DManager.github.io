@@ -186,6 +186,14 @@
             {% endif %}
           {% endif %}
 
+          {% if post.author%}
+              <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-user"></i>
+               </span>
+                <span class="post-meta-item-text">{{post.author | join: "、"}} </span>
+          {% endif %}
+
           {% comment %} LeanCould PageView {% endcomment %}
           {% if site.leancloud_visitors.enable %}
              <span id="{{ post.url | relative_url }}" class="leancloud_visitors" data-flag-title="{{ post.title }}">
