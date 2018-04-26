@@ -57,6 +57,15 @@
         {% endunless %}
 
         <div class="post-meta">
+
+        {% if post.author%}
+             <span class="post-meta-item-icon">
+               <i class="fa fa-user"></i>
+             </span>
+              <span class="post-meta-item-text">{{post.author | join: "、"}} </span>
+              <span class="post-meta-divider">|</span>
+        {% endif %}
+
           <span class="post-time">
             {% if site.post_meta.created_at %}
               <span class="post-meta-item-icon">
@@ -184,14 +193,6 @@
                 </a>
               {% endif %}
             {% endif %}
-          {% endif %}
-
-          {% if post.author%}
-              <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-user"></i>
-               </span>
-                <span class="post-meta-item-text">{{post.author | join: "、"}} </span>
           {% endif %}
 
           {% comment %} LeanCould PageView {% endcomment %}
