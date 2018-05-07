@@ -404,13 +404,30 @@ static void MCDSwizzleInstanceMethod(Class cls, SEL originalSelector, Class targ
 }
 
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
-    if ([self.realDelegate respondsToSelector:anInvocation.selector]) {
-        [anInvocation invokeWithTarget:self.realDelegate];
-    }
-
-    for (TDFModule *module in [TDFModuleManager shared].modules) {
-        if ([module respondsToSelector:anInvocation.selector]) {
-            [anInvocation invokeWithTarget:module];
+    NSMutableArray *allModules = [NSMutableArray arrayWithObjects:self.realDelegate, nil];
+    [allModules addObjectsFromArray:[TDFModuleManager shared].modules];
+    
+    // BOOL 型返回值做特殊 | 处理
+    if (anInvocation.methodSignature.methodReturnType[0] == 'B') {
+        BOOL realReturnValue = NO;
+        
+        for (TDFModule *module in allModules) {
+            if ([module respondsToSelector:anInvocation.selector]) {
+                [anInvocation invokeWithTarget:module];
+                
+                BOOL returnValue = NO;
+                [anInvocation getReturnValue:&returnValue];
+                
+                realReturnValue = returnValue || realReturnValue;
+            }
+        }
+        
+        [anInvocation setReturnValue:&realReturnValue];
+    } else {
+        for (TDFModule *module in allModules) {
+            if ([module respondsToSelector:anInvocation.selector]) {
+                [anInvocation invokeWithTarget:module];
+            }
         }
     }
 }
@@ -424,6 +441,8 @@ static void MCDSwizzleInstanceMethod(Class cls, SEL originalSelector, Class targ
 当 `-respondsToSelector:` 返回 YES 后，程序来到消息转发第二步 Fast forwarding path ，对应方法 `-forwardingTargetForSelector:`，在这一步，我们判断转发的方法是否为 UIApplicationDelegate 的代理方法，如果不是，并且 realDelegate（也就是 AppDelegate） 能响应，就直接把消息转发给 realDelegate。
 
 如果在上一步中没有把消息转发给 realDelegate，那么就到了消息转发的最后一步 Normal forwarding path ，对应方法 `-methodSignatureForSelector:` 和 `-forwardInvocation:`，在这一步我们首先根据协议直接返回代理方法的签名，然后在 `-forwardInvocation:` 方法中，按照优先级，依次把消息转发给注册的模块。
+
+在不做额外操作的前提下， `-forwardInvocation:` 中只有最后一次调用的返回值会成为实际返回值，当实现类似 `- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options` 等返回 BOOL 值的代理方法时，就会出现问题。所以这里通过判断返回值是否为 BOOL 类型，去执行不同的操作。如果为 BOOL 类型，则对所有返回值执行逻辑或操作，并将结果设置成实际返回值。
 
 总结起来，流程如下：
 
