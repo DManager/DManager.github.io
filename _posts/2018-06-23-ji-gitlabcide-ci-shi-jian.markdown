@@ -6,7 +6,6 @@ styles: [data-table]
 comments: true
 categories: ci
 tags: [GitLab CI,组件化]
-author: 青木
 ---
 
 
@@ -24,12 +23,11 @@ author: 青木
 > 本文使用 GitLab Community Edition 10.4.0 版本
 
 
-
 ![cicd_pipeline_infograph](/images/cicd_pipeline_infograph.png)
 
 
-
 GitLab 在 8.0 版本之后，就集成了 GitLab CI ，随着版本的迭代，其功能越来越强大。使用者只需要在仓库根目录下 （可以通过仓库的 Setting -> CI/CD -> General pipelines settings -> Custom CI config path 设置加载路径，默认根目录）添加 `.gitlab-ci.yml` 配置文件，并且存在可用的 GitLab Runner ，就可以实现持续集成。
+
 
 如果在仓库中没有发现 CI/CD 设置项，则需要到 Setting -> CI/CD -> Permissions -> Pipeline 打开设置。
 
@@ -94,6 +92,10 @@ test2:
 ## GitLab Runner
 
 > 下文操作基于 macOS 系统
+
+![how_does_gitlab_ci_work](/images/Snip20180718_1.png)
+
+GitLab Runner 和 GitLab 的关系大体如上所示， GitLab Runner 内部会起一个无限循环，根据 `check_interval` 字段设置的时间间隔，去 GitLab 请求需要执行的任务。更详细的信息可以查看 [How shared Runners pick jobs ](https://docs.gitlab.com/ce/ci/runners/#how-shared-runners-pick-jobs)，[How check_interval works](https://gitlab.com/gitlab-org/gitlab-runner/blob/master/docs/configuration/advanced-configuration.md#how-check_interval-works)。
 
 GitLab Runner 按服务对象可划分 shared runner  和 specific runner ，10.8 版本后还有 group runner，三者应用场景如下：
 
@@ -261,7 +263,7 @@ check_interval = 0
 | ---------------- | ------------------------------------------------------------ |
 | `concurrent`     | 可并发执行的最大任务数，0 不代表无限制                       |
 | `log_level`      | Log 等级  (可选择: debug, info, warn, error, fatal, panic)。优先级比通过命令行 —debug， -l 或 --log-level 设置低 |
-| `check_interval` | 设置轮训新任务的实践周期，单位（秒）。默认值为 3 秒，如果设置为 0 或者比 3 小，此字段使用默认值。 |
+| `check_interval` | 设置轮询新任务的周期，单位（秒）。默认值为 3 秒，如果设置为 0 或者比 3 小，此字段使用默认值。 |
 
 <br>
 
@@ -396,7 +398,7 @@ report_to_director:
 
 以上是掌柜团队目前采用的 `.gitlab-ci.yml`  配置，涉及的关键字在官方文档 [Configuration of your jobs with .gitlab-ci.yml](https://docs.gitlab.com/ce/ci/yaml/README.html) 有非常详细的介绍，这里不做赘述，只说下这样配置的几点考虑。
 
-1、所有 stage 脚本，都保存在 ci-yaml-shell 仓库中，在执行 global `before_script` 时下载。这是因为工程在组件化后会产生非常多的仓库 ，这样做有利于 CI 脚本的统一修改和管理，只要在每个仓库的 `.gitlab-ci.yml  `配置中预留足够多的入口即可，后期修改调试比较方便。比如需要新增 `xcpretty` 依赖，只需在 `before_shell_executor.sh` 脚本中添加 `gem install xcpretty --no-ri --no-rdoc`  即可辐射到所有组件。
+1、所有 stage 脚本，都保存在 ci-yaml-shell 仓库中，在执行 global `before_script` 时下载（通过 ssh ，不受 GitLab CI 权限影响）。这是因为工程在组件化后会产生非常多的仓库 ，这样做有利于 CI 脚本的统一修改和管理，只要在每个仓库的 `.gitlab-ci.yml  `配置中预留足够多的入口即可，后期修改调试比较方便。比如需要新增 `xcpretty` 依赖，只需在 `before_shell_executor.sh` 脚本中添加 `gem install xcpretty --no-ri --no-rdoc`  即可辐射到所有组件。
 
 
 
@@ -422,12 +424,7 @@ report_to_director:
 # framework_pack_executor.sh
 
 ...
-ruby $(dirname "$0")/validate_specification.rb
-
-result=$(echo $?)
-if [[ $result != 0 ]]; then
-	exit $result
-fi
+ruby $(dirname "$0")/validate_specification.rb || { exit 1; }
 ...
 ```
 
@@ -439,10 +436,10 @@ fi
 # publish_executor.sh
 ...
 if [[ -f "Gemfile" ]]; then 
-	bundle install
-	bundle exec pod binary publish --verbose
+  bundle install
+  bundle exec pod binary publish --verbose
 else
-	pod $(pod_gem_version) binary publish --verbose
+  pod $(pod_gem_version) binary publish --verbose
 fi
 ...
 ```
@@ -462,74 +459,74 @@ raise "can`t find specfile at #{Dir.pwd}" if spec_file.nil?
 spec = Pod::Specification.from_file(spec_file)
 
 Pod::UI.section('校验依赖限制') do
-	none_requirement_dependencies = spec.dependencies.select do |dep|
-		dep.requirement.none?
-	end
+  none_requirement_dependencies = spec.dependencies.select do |dep|
+    dep.requirement.none?
+  end
 
-	fire_source = Pod::Config.instance.sources_manager.all.select do |s|
-		s.url.downcase.include?('2dfire')
-	end.first
+  fire_source = Pod::Config.instance.sources_manager.all.select do |s|
+    s.url.downcase.include?('2dfire')
+  end.first
 
-	if none_requirement_dependencies.any?
-		version_hash = {}
-		none_requirement_dependencies.each do |dep|
-			versions = fire_source.versions(dep.root_name)
-			next if versions.nil?
+  if none_requirement_dependencies.any?
+    version_hash = {}
+    none_requirement_dependencies.each do |dep|
+      versions = fire_source.versions(dep.root_name)
+      next if versions.nil?
 
-			newest_version = versions.sort.last
-			version_hash[dep.root_name] = "#{newest_version.major}.#{newest_version.minor}"
-		end
+      newest_version = versions.sort.last
+      version_hash[dep.root_name] = "#{newest_version.major}.#{newest_version.minor}"
+    end
 
-		old_require = none_requirement_dependencies.map { |dep| "s.dependency '#{dep.name}'" }.join("\n")
-		new_require = none_requirement_dependencies.map { |dep| "s.dependency '#{dep.name}', '~> #{version_hash[dep.root_name]}'" }.join("\n")
-		err_message = "podspec 依赖需要设置限制，将：\n#{old_require} \n依赖更换为：\n#{new_require}"
-		Pod::UI.puts err_message.red
-		raise err_message
-	end
+    old_require = none_requirement_dependencies.map { |dep| "s.dependency '#{dep.name}'" }.join("\n")
+    new_require = none_requirement_dependencies.map { |dep| "s.dependency '#{dep.name}', '~> #{version_hash[dep.root_name]}'" }.join("\n")
+    err_message = "podspec 依赖需要设置限制，将：\n#{old_require} \n依赖更换为：\n#{new_require}"
+    Pod::UI.puts err_message.red
+    raise err_message
+  end
 end
 
 
 Pod::UI.section('校验版本层级标识') do
-	COMPONENTS_LABELS = %w[
-		basic
-		weakbusiness
-		business
-	].freeze
+  COMPONENTS_LABELS = %w[
+    basic
+    weakbusiness
+    business
+  ].freeze
 
-	labels = COMPONENTS_LABELS.select do |l|
-		spec.summary.start_with?(l)	
-	end
-	if labels.empty?
-		err_message = "podspec 需要在 summary 字段中，为组件添加层级标识。分为以下层级 #{COMPONENTS_LABELS}，如:\ns.summary = '#{COMPONENTS_LABELS.first} #{spec.summary}'"
-		Pod::UI.puts err_message.red
-		raise err_message
-	end
+  labels = COMPONENTS_LABELS.select do |l|
+    spec.summary.start_with?(l)	
+  end
+  if labels.empty?
+    err_message = "podspec 需要在 summary 字段中，为组件添加层级标识。分为以下层级 #{COMPONENTS_LABELS}，如:\ns.summary = '#{COMPONENTS_LABELS.first} #{spec.summary}'"
+    Pod::UI.puts err_message.red
+    raise err_message
+  end
 end
 
 
 Pod::UI.section('校验业务线私有组件包含关系') do
-	SPECIFiC_BUSSINESS_LINE_PODS =  %w[
-		TDFLoginAssistant
-		TDFBossBaseInfoDefaults
-	].freeze
+  SPECIFiC_BUSSINESS_LINE_PODS =  %w[
+    TDFLoginAssistant
+    TDFBossBaseInfoDefaults
+  ].freeze
 
-	specific_pods = spec.dependencies.select do |dep|
-		SPECIFiC_BUSSINESS_LINE_PODS.include?(dep.root_name)
-	end
+  specific_pods = spec.dependencies.select do |dep|
+    SPECIFiC_BUSSINESS_LINE_PODS.include?(dep.root_name)
+  end
 
-	if specific_pods.any?
-		err_message = "podspec 中不能包含业务线特殊组件/调试组件 #{specific_pods.map(&:name).join(', ')}"
-		Pod::UI.puts err_message.red
-		raise err_message
-	end
+  if specific_pods.any?
+    err_message = "podspec 中不能包含业务线特殊组件/调试组件 #{specific_pods.map(&:name).join(', ')}"
+    Pod::UI.puts err_message.red
+    raise err_message
+  end
 end
 
 Pod::UI.section('校验 pch 文件引用') do
-	if spec.prefix_header_file
-		err_message = "podspec 不能设置 pch 属性，删除 prefix_header_file 的设置，调整头文件引用"
-		Pod::UI.puts err_message.red
-		raise err_message
-	end
+  if spec.prefix_header_file
+    err_message = "podspec 不能设置 pch 属性，删除 prefix_header_file 的设置，调整头文件引用"
+    Pod::UI.puts err_message.red
+    raise err_message
+  end
 end
 ```
 
@@ -619,10 +616,10 @@ runner 默认通过 http / https 对代码进行 clone / fetch ，在没有配�
 
 ```
 [credential]
-	helper = store --file $HOME/.git-credentials
+  helper = store --file $HOME/.git-credentials
 [user]
-	name = gitlab-runner
-	email = xxxx
+  name = gitlab-runner
+  email = xxxx
 ```
 
 `--file` 是 `store ` 模式用来自定义存放密码的文件路径（默认是`~/.git-credentials`）。`.git-credentials` 文件内容格式如下：
@@ -645,10 +642,10 @@ xcodebuild 编译时需要指定 `-destination` 参数，在有多台 runner 的
 
 ```sh
 build_destination(){
-	devices=$(instruments -s devices)
-	os=$(echo ${devices##*iPhone X} | grep -Eo '[0-9]+[.][0-9]+')
-	destination="platform=iOS Simulator,name=iPhone X,OS=$os"	
-	echo $destination
+  devices=$(instruments -s devices)
+  os=$(echo ${devices##*iPhone X} | grep -Eo '[0-9]+[.][0-9]+')
+  destination="platform=iOS Simulator,name=iPhone X,OS=$os"	
+  echo $destination
 }
 ```
 
@@ -666,11 +663,11 @@ infors = `xcodebuild -list`.split("\n").map(&:strip)
 scheme = nil
 flag = false
 infors.each do |i|
-	flag = true if i == 'Schemes:'
+  flag = true if i == 'Schemes:'
 
-	if flag && i.end_with?('Example')
-		scheme = i
-	end
+  if flag && i.end_with?('Example')
+    scheme = i
+  end
 end
 
 puts scheme
@@ -681,6 +678,8 @@ puts scheme
 
 
 ## 参考
+
+[GitLab CI/CD Variables](https://docs.gitlab.com/ee/ci/variables/)
 
 [GitLab Continuous Integration ](https://docs.gitlab.com/ce/ci/README.html)
 
