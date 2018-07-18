@@ -5,6 +5,7 @@ date: 2018-06-23 10:42:50 +0800
 styles: [data-table]
 comments: true
 categories: ci
+author: [青木]
 tags: [GitLab CI,组件化]
 ---
 
