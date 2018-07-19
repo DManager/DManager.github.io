@@ -287,7 +287,6 @@
       {% endif %}
 
       {% if is_index %}
-        {% assign components = post.content |  split: "<!-- more -->" %}
         {% if post.description and site.excerpt_description %}
           {{ post.description }}
           <!--noindex-->
@@ -297,9 +296,6 @@
             </a>
           </div>
           <!--/noindex-->
-        {% elsif components.size > 1 %}
-            {{ components | first }}
-            ...
         {% elsif post.excerpt  %}
           {{ post.excerpt }}
           <!--noindex-->
@@ -310,7 +306,6 @@
           </div>
           <!--/noindex-->
         {% elsif site.auto_excerpt.enable %}
-          
           {% assign content = post.content | strip_html %}
           {{ content | slice: 0, site.auto_excerpt.length }}
           {% if content.size > site.auto_excerpt.length %}...{% endif %}
