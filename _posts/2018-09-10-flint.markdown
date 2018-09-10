@@ -1,3 +1,14 @@
+---
+layout: post
+title: "Feature Driven Development（特性驱动开发)"
+date: 2018-09-10 10:42:50 +0800
+styles: [data-table]
+comments: true
+categories: 探索
+author: [紫薯]
+tags: [FDD]
+---
+
 ## 一、**Feature Driven Development**（特性驱动开发)
 
 ##### 1.**What** **do** **I** **mean** **by** **Feature** **Driven** **Development**?
