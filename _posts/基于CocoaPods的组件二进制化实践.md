@@ -128,7 +128,9 @@ pod package-pro TDFNavigationBarKit.podspec --exclude-deps --force --no-mangle -
 
 二级命令 package 改成 package-pro 即可。
 
-CocoaPods 目前发布了 1.6.0  beta 版本，试用之后，发现由于某些类的构造函数参数发生了变更， 导致cocoapods-packager 现有代码已经无法正常工作了，所以 cocoapods-packager  只适用低于 1.6.0 版本的 CocoaPods，后期如果官方 cocoapods-packager 还是没有更新的话，我们应该会在 cocoapods-packager-pro 中适配新版本 CocoaPods。
+CocoaPods 目前发布了 1.6.0 beta 版本，试用之后，发现由于某些类的构造函数参数发生了变更， 导致 cocoapods-packager 现有代码已经无法正常工作了，所以 cocoapods-packager  只适用低于 1.6.0 版本的 CocoaPods，后期如果官方 cocoapods-packager 还是没有更新的话，我们应该会在 cocoapods-packager-pro 中适配新版本 CocoaPods。
+
+cocoapods-packager 作者最近还创建了插件 [cocoapods-generate](https://github.com/square/cocoapods-generate) ，此插件可以直接根据 podspec 生成目标工程，相当于 cocoapods-packager 前半部分功能的增强版。目前这个插件支持 CocoaPods 1.6.0 beta 版本，不想用 cocoapods-packager 的开发者，可以先利用 cocoapods-generate 创建目标工程，然后接管构建二进制包的后续操作，可以选择自己实现打包脚本，也可以选择使用 Carthage。
 
 关于 Carthage 如何打 static-framework ，可以参照 [Build static frameworks to speed up your app’s launch times](https://github.com/Carthage/Carthage#build-static-frameworks-to-speed-up-your-apps-launch-times) 。其中有一步是将需要打包的 scheme 设置为 shared ，这个 scheme 一般对应 CocoaPods 组件的 develpement pod ，可以参照[让CocoaPods组件支持Carthage打包](http://localhost:4000/2018/04/07/2018-04-07-rang-cocoapodszu-jian-zhi-chi-carthageda-bao/)文章进行设置。
 
