@@ -112,7 +112,7 @@ NSString * kTDFRootAPI = @"xxx";
 以下是我们用来构建 static-framework 的命令：
 
 ```shell
-pod package TDFNavigationBarKit.podspec --exclude-deps --force --no-mangle --spec-sources=http://git.2dfire.net/ios/cocoapods-spec.git
+pod package TDFNavigationBarKit.podspec --exclude-deps --force --no-mangle --spec-sources=http://git.xxxxx.net/ios/cocoapods-spec.git
 ```
 
 在使用过程中，我遇到了两个关于组件资源的问题 ：
@@ -123,7 +123,7 @@ pod package TDFNavigationBarKit.podspec --exclude-deps --force --no-mangle --spe
 鉴于 cocoapods-packager  [近期没有发布新版本的计划](https://github.com/CocoaPods/cocoapods-packager/issues/200)，我只能 fork 并更新代码之后，重新发布 [cocoapods-packager-pro](https://github.com/tripleCC/cocoapods-packager) 来修复这两个问题。使用  cocoapods-packager-pro  之后，构建  static-framework 的命令变为：
 
 ```shell
-pod package-pro TDFNavigationBarKit.podspec --exclude-deps --force --no-mangle --spec-sources=http://git.2dfire.net/ios/cocoapods-spec.git
+pod package-pro TDFNavigationBarKit.podspec --exclude-deps --force --no-mangle --spec-sources=http://git.xxxxx.net/ios/cocoapods-spec.git
 ```
 
 二级命令 package 改成 package-pro 即可。
@@ -517,7 +517,7 @@ end
     "tvos": "9.0"
   },
   "source": {
-    "git": "git@git.2dfire.net:cocoapods-repos/YYModel.git",
+    "git": "git@git.xxxxx.net:cocoapods-repos/YYModel.git",
     "tag": "1.0.4.2"
   },
   "frameworks": [
@@ -563,7 +563,7 @@ end
 
 ```
 
-当采用 YYModel 的源码版本时，我们从 cocoapods-spec 私有源获取组件的 podspec，那么下载地址为 ` git@git.2dfire.net:cocoapods-repos/YYModel.git`  的  `1.0.4.2`  tag ；当采用 YYModel 的二进制版本时，我们从 cocoapods-spec-binary 私有源获取组件的 podspec，那么下载地址为`http://iosframeworkserver-shopkeeperclient.app.2dfire.com/download/YYModel/1.0.4.2.zip`。
+当采用 YYModel 的源码版本时，我们从 cocoapods-spec 私有源获取组件的 podspec，那么下载地址为 ` git@git.xxxxx.net:cocoapods-repos/YYModel.git`  的  `1.0.4.2`  tag ；当采用 YYModel 的二进制版本时，我们从 cocoapods-spec-binary 私有源获取组件的 podspec，那么下载地址为`http://iosframeworkserver-shopkeeperclient.app.2dfire.com/download/YYModel/1.0.4.2.zip`。
 
 通过上个方案，我们可以知道 resolver_specs_by_target 方法创建了最终使用的 specifications ，接下来我们结合 cocoapods-bin 插件代码，看下如何切换组件的私有源：
 
@@ -693,7 +693,7 @@ before_script:
   - export LC_ALL=en_US.UTF-8
   
   - pwd
-  - git clone git@git.2dfire.net:ios/ci-yaml-shell.git 
+  - git clone git@git.xxxxx.net:ios/ci-yaml-shell.git 
   - ci-yaml-shell/before_shell_executor.sh
 
 after_script:
