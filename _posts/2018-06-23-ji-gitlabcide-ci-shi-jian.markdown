@@ -7,6 +7,7 @@ comments: true
 categories: ci
 author: [青木]
 tags: [GitLab CI,组件化]
+author: 青木
 ---
 
 
